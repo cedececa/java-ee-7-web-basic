@@ -24,8 +24,10 @@
 
             Pedido pedido;
             pedido = (Pedido) request.getAttribute("pedidoEncontrado");
+            
         %>
 
+        
         <h1>Datos del cliente</h1>
         <% if (pedido != null) {%>
         <div>
