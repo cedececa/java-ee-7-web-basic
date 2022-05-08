@@ -5,6 +5,7 @@
  */
 package servlet;
 
+import dao.ClienteFacade;
 import dao.PedidoFacade;
 import java.io.IOException;
 import javax.ejb.EJB;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import entity.Pedido;
+import entity.Cliente;
 import javax.servlet.RequestDispatcher;
 
 /**
@@ -25,6 +27,8 @@ public class Carrito extends HttpServlet {
 
     @EJB
     PedidoFacade pedidoFacade;
+    @EJB
+    ClienteFacade clienteFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,15 +43,34 @@ public class Carrito extends HttpServlet {
             throws ServletException, IOException {
         //response.setContentType("text/html;charset=UTF-8");
 
+        // caso solo idpedido
         String idpedido = request.getParameter("idpedido");
+        String idcliente = request.getParameter("idcliente");
         Pedido pedidoEncontrado = pedidoFacade.findById(idpedido);
+        
+        /**
+         * caso: idpedido y idcliente si no existe un pedido con ese id, se
+         * debera crear uno nuevo para ese cliente.
+         */
+        if (pedidoEncontrado == null) {
+            Cliente cliente = this.clienteFacade.find(Integer.parseInt(idcliente));
+            pedidoEncontrado = new Pedido();
+            
+            // NO SE PERMITE MODIFICAR ID PORQUE CLAVE PRIMARIA DE LA TABLA ES AUTOGENERADA.
+            // pedidoEncontrado.setPedidoId(Integer.parseInt(idpedido));
+
+            pedidoEncontrado.setClienteId(cliente);
+            cliente.getPedidoList().add(pedidoEncontrado);
+            this.pedidoFacade.create(pedidoEncontrado);
+        }
+
+        // set las variables para la pagina jsp
         request.setAttribute("idpedido", idpedido);
         request.setAttribute("pedidoEncontrado", pedidoEncontrado);
 
         // se le pasa el control a la JSP “pagina.jsp”
         RequestDispatcher rd;
         rd = request.getRequestDispatcher("carrito.jsp");
-
         rd.forward(request, response);
 
     }
