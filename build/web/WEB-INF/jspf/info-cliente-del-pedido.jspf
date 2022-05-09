@@ -1,0 +1,24 @@
+<%-- any content can be specified here e.g.: --%>
+<%@page import="entity.Pedido"%>
+<%@ page pageEncoding="UTF-8" %>
+<%
+
+    Pedido pedidoEnCarrito;
+    pedidoEnCarrito = (Pedido) request.getAttribute("pedidoEncontrado");
+
+%>
+
+
+<h1>Datos del cliente</h1>
+<% if (pedidoEnCarrito != null) {%>
+<div>
+    <h4>Nombre:<%=pedidoEnCarrito.getClienteId().getNombre()%></h4>
+    <h4>Apellidos: <%=pedidoEnCarrito.getClienteId().getApellidos()%></h4>
+    <h4>Email: <%=pedidoEnCarrito.getClienteId().getEmail()%></h4>
+</div>
+<% } else {
+%>
+
+<h4>No existe este cliente</h4>
+
+<%}%>

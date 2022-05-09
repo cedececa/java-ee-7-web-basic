@@ -5,35 +5,34 @@
  */
 package servlet;
 
-import dao.ClienteFacade;
 import dao.PedidoFacade;
+import dao.PedidoProductoFacade;
 import dao.ProductoFacade;
+import entity.Pedido;
+import entity.PedidoProducto;
+import entity.PedidoProductoPK;
 import java.io.IOException;
 import javax.ejb.EJB;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import entity.Pedido;
-import entity.Cliente;
-import entity.Producto;
-import java.util.List;
-import javax.servlet.RequestDispatcher;
 
 /**
  *
  * @author Cheng
  */
-@WebServlet(name = "Carrito", urlPatterns = {"/Carrito"})
-public class Carrito extends HttpServlet {
+@WebServlet(name = "AnadirProductoAlCarrito", urlPatterns = {"/AnadirProductoAlCarrito"})
+public class AnadirProductoAlCarrito extends HttpServlet {
 
     @EJB
-    PedidoFacade pedidoFacade;
-    @EJB
-    ClienteFacade clienteFacade;
+    PedidoProductoFacade pedidoProductoFacade;
     @EJB
     ProductoFacade productoFacade;
+    @EJB
+    PedidoFacade pedidoFacade;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,47 +45,22 @@ public class Carrito extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        /**
-         * Partado 1
-         */
 
-        // caso solo idpedido
         String idpedido = request.getParameter("idpedido");
-        String idcliente = request.getParameter("idcliente");
-        Pedido pedidoEncontrado = pedidoFacade.findById(idpedido);
+        String idproducto = request.getParameter("idproducto");
+        String cantidad = request.getParameter("cantidad");
 
-        /**
-         * caso: idpedido y idcliente si no existe un pedido con ese id, se
-         * debera crear uno nuevo para ese cliente.
-         */
-        if (pedidoEncontrado == null) {
-            Cliente cliente = this.clienteFacade.find(Integer.parseInt(idcliente));
-            pedidoEncontrado = new Pedido();
+        PedidoProducto pedidoProductoNuevo = new PedidoProducto();
+        pedidoProductoNuevo.setCantidad(Short.parseShort(cantidad));
+        pedidoProductoNuevo.setProducto(this.productoFacade.find(Integer.parseInt(idproducto)));
+        pedidoProductoNuevo.setPedido(this.pedidoFacade.find(Integer.parseInt(idpedido)));
 
-            // NO SE PERMITE MODIFICAR ID PORQUE CLAVE PRIMARIA DE LA TABLA ES AUTOGENERADA.
-            // pedidoEncontrado.setPedidoId(Integer.parseInt(idpedido));
-            pedidoEncontrado.setClienteId(cliente);
-            cliente.getPedidoList().add(pedidoEncontrado);
-            this.pedidoFacade.create(pedidoEncontrado);
-        }
-        List<Producto> produtosDisponibles = this.productoFacade.getProductosDisponibles();
-        
-        // set las variables para la pagina jsp
-        request.setAttribute("idpedido", idpedido);
-        request.setAttribute("pedidoEncontrado", pedidoEncontrado);
-        request.setAttribute("produtosDisponibles", produtosDisponibles);
+        PedidoProductoPK pedidoProductoPK = new PedidoProductoPK(Integer.parseInt(idpedido), Integer.parseInt(idproducto));
+        pedidoProductoNuevo.setPedidoProductoPK(pedidoProductoPK);
+        this.pedidoProductoFacade.create(pedidoProductoNuevo);
 
-        /**
-         * Partado 2
-         */
-        
-        
-        
-        // se le pasa el control a la JSP “pagina.jsp”
         RequestDispatcher rd;
-        rd = request.getRequestDispatcher("carrito.jsp");
-        rd.forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/Carrito?idpedido=1");
 
     }
 

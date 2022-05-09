@@ -6,9 +6,11 @@
 package dao;
 
 import entity.Producto;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -28,5 +30,10 @@ public class ProductoFacade extends AbstractFacade<Producto> {
     public ProductoFacade() {
         super(Producto.class);
     }
-    
+
+    public List<Producto> getProductosDisponibles() {
+        Query q = this.em.createQuery("SELECT p FROM Producto p WHERE p.cantidad >0 AND p.disponible = TRUE", Producto.class);
+        return (List<Producto>) q.getResultList();
+    }
+
 }

@@ -1,0 +1,60 @@
+<%-- any content can be specified here e.g.: --%>
+<%@page import="entity.Pedido"%>
+<%@page import="java.util.List"%>
+<%@page import="entity.Producto"%>
+<%@ page pageEncoding="UTF-8" %>
+<h1>Productos disponibles</h1>
+<%
+    Pedido pedidoEnCarrito1;
+    pedidoEnCarrito1 = (Pedido) request.getAttribute("pedidoEncontrado");
+    List<Producto> pds = (List<Producto>) request.getAttribute("produtosDisponibles");
+%>
+<%
+    if (pds.size() > 0) {
+%>
+<table>
+    <thead>
+    <th>IDPRODUCTO</th>
+    <th>DESCRIPCION</th>
+    <th>CANTIDAD</th>
+    <th>FABRICANTE</th>
+    <th>COSTE</th>
+</thead>
+<tbody>
+
+    <%
+        for (Producto p : pds) {
+    %>
+    <tr>
+
+        <td><%=p.getProductoId()%></td>
+        <td><%=p.getDescripcion()%></td>
+        <td><%=p.getCantidad()%></td>
+        <td><%=p.getFabricante()%></td>
+        <td><%=p.getCoste()%></td>
+
+        <td>
+            <form method="POST" action="AnadirProductoAlCarrito">
+                <input name="idpedido" value="<%=pedidoEnCarrito1.getPedidoId()%>" hidden="true">
+                <input name="idproducto" value="<%=p.getProductoId()%>" hidden="true">
+                <input 
+                    style="width: 60px"  
+                    type="number" 
+                    min="0" 
+                    size="5" 
+                    maxlength="5" 
+                    value="0"
+                    name="cantidad">
+                <button type="submit">Añadir</button>
+            </form>
+        </td>
+    </tr>
+
+    <%
+        }
+    %>
+    <%
+        }
+    %>
+</tbody>
+</table>
